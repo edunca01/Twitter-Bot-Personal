@@ -1,11 +1,21 @@
 import sys
 import multiprocessing
-import pandas as pd
-import re
-import tweepy
-from botutils import config
-from botutils import fetch_data
 import json
+import re
+import time
+
+import tweepy
+import pandas as pd
+
+
+# Create a stream listener
+class StreamListener(tweepy.StreamListener):
+    def on_status(self, status):
+        # Check if the tweet is from Elon Musk
+        if status.user.screen_name == "elonmusk":
+            # Like the tweet
+            api.create_favorite(status.id)
+            print(f"Liked tweet: {status.text}")
 
 if __name__ == '__main__':
     print('Starting Twitter Bot')
@@ -29,9 +39,11 @@ if __name__ == '__main__':
     print('Finished Initialization')
 
     
+
+    # Get Tweets from timeline
     public_tweets = api.home_timeline()
 
-    #dataframe
+    #Create Dataframe
     column = ['Tweet', 'Time']
     data = []
 
@@ -41,6 +53,6 @@ if __name__ == '__main__':
     df = pd.DataFrame(data,columns=column)
     # Remove hyperlinks included in tweets
     df['Tweet'] = df['Tweet'].apply(lambda x: re.sub(r'http\S+', '', x)) #Remove hyperlinks
-    df['text'] = df['text'].str.replace('[^\w\s]','') #Remove special characters
+    df['Tweet'] = df['Tweet'].str.replace('[^\w\s]','') #Remove special characters
     df.to_csv('tweets.csv')
     #print(public_tweets)
